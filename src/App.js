@@ -19,11 +19,13 @@ export default class App extends Component {
     this.setState({ imageName });
   };
   // Получение большой картинки для модалки
-  getLargeImage = (image) => {
-    this.setState({ largeImageURL: image.largeImageURL });
-  };
+  // getLargeImage = (image) => {
+  //   this.setState({ largeImageURL: image.largeImageURL });
+  // };
+
   // Открытие модалки с большой картинкой
-  handleOpenImage = ({ images, idForModal }) => {
+  handleOpenImage = (foo, e, images, idForModal) => {
+    foo(e);
     console.log(idForModal); // ''
     const image = images.find((i) => i.id === idForModal);
     console.log(image); //undefined
@@ -35,10 +37,6 @@ export default class App extends Component {
   handleLoadMore = () => {
     this.setState((currentState) => {
       return { pageNumber: currentState.pageNumber + 1 };
-    });
-    window.scrollTo({
-      top: document.documentElement.scrollHeight,
-      behavior: "smooth",
     });
   };
 

@@ -7,7 +7,6 @@ export default class ImageGallery extends Component {
     loading: false,
     key: "19420354-3227e9c850ee70e183cd8e591",
     idForModal: "",
-    largeImageSrc: "",
   };
   componentDidUpdate = (prevProps) => {
     if (
@@ -35,6 +34,10 @@ export default class ImageGallery extends Component {
       .finally(() => {
         this.setState({ loading: false });
         this.props.changeImagesLength(this.state.images);
+        window.scrollTo({
+          top: document.documentElement.scrollHeight,
+          behavior: "smooth",
+        });
       });
   };
 
@@ -42,21 +45,18 @@ export default class ImageGallery extends Component {
   handleGetId = (e) => {
     const targetId = e.target.id;
     console.log(e.target.id); //736877
-    this.setState(() => {
-      return { idForModal: targetId };
-    });
+    this.setState({ idForModal: targetId });
   };
 
   render() {
-    const { images } = this.state;
+    const { images, idForModal } = this.state;
     return (
       <>
         <ul
           className="ImageGallery"
-          onClick={(e) => {
-            this.handleGetId(e);
-            this.props.onOpenImage(this.state);
-          }}
+          onClick={(e) =>
+            this.props.onOpenImage(this.handleGetId, e, images, idForModal)
+          }
         >
           {images.map((i) => (
             <ImageGalleryItem src={i.webformatURL} name={i.type} id={i.id} />
