@@ -1,19 +1,22 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
 
 export class Searchbar extends Component {
   state = { imageName: "" };
 
+  // Отображение значений в инпуте
   handleChange = (e) => {
     this.setState({ imageName: e.currentTarget.value });
   };
+
+  // Внесение изменений в стэйт imageName по сабмиту формы
   handleSubmit = (e) => {
+    const { imageName } = this.state;
     e.preventDefault();
-    if (this.state.imageName.trim() === "") {
+    if (imageName.trim() === "") {
       alert("Enter picture name");
       return;
     }
-    this.props.onSubmit(this.state.imageName.trim());
+    this.props.onSubmit(imageName.trim());
     this.setState({ imageName: "" });
   };
 

@@ -15,6 +15,7 @@ export default class App extends Component {
     imagesLength: 0,
     largeImageURL: "",
     idForModal: 0,
+    error: null,
   };
   handleSerchSubmit = (imageName) => {
     this.setState({ imageName });
@@ -31,6 +32,12 @@ export default class App extends Component {
     this.setState({ isModalOpen: true });
   };
 
+  // Добавление кнопки Load more
+  isLoadMoreVisible = () => {
+    if (this.state.imagesLength === 0 && this.state.loading === false) {
+      return false;
+    }
+  };
   // Добавление следующих картинок
   handleLoadMore = () => {
     this.setState((currentState) => {
@@ -68,8 +75,21 @@ export default class App extends Component {
     this.setState({ isModalOpen: false });
   };
 
+  // Обработка ошибки запроса
+  errorHandling = (errorMessage) => {
+    this.setState({ error: errorMessage }, () => {
+      alert(this.state.error);
+    });
+  };
+
   render() {
-    const { loading, imageName, pageNumber, imagesLength } = this.state;
+    const {
+      loading,
+      imageName,
+      pageNumber,
+      isModalOpen,
+      imagesLength,
+    } = this.state;
     return (
       <div onKeyDown={this.handleCloseByKey}>
         <Searchbar onSubmit={this.handleSerchSubmit} />
@@ -80,6 +100,7 @@ export default class App extends Component {
           changeImagesLength={this.changeImagesLength}
           resetPageNumber={this.resetPageNumber}
           changeLoading={this.changeLoading}
+          errorHandling={this.errorHandling}
         />
         {loading && (
           <div className="LoaderContainer">
@@ -94,8 +115,8 @@ export default class App extends Component {
             </div>
           </div>
         )}
-        {imagesLength > 0 && <Button onLoadMore={this.handleLoadMore} />}
-        {this.state.isModalOpen && (
+        {imagesLength > 0 && <Button callBack={this.handleLoadMore} />}
+        {isModalOpen && (
           <Modal
             src={this.state.largeImageURL}
             onCloseModelOverlay={this.handleCloseByOverlay}

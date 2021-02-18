@@ -33,14 +33,22 @@ export default class ImageGallery extends Component {
       imageName,
       pageNumber,
       changeImagesLength,
+      errorHandling,
     } = this.props;
-
     changeLoading(true);
     fetch(
-      `https://pixabay.com/api/?key=${key}&q=${imageName}&image_type=photo&per_page=3&page=${pageNumber}`
+      `https://pixabay.com/api/?key=${key}&q=${imageName}&image_type=photo&per_page=12&page=${pageNumber}`
     )
       .then((r) => r.json())
-      .then((r) => this.setState({ images: [...prevImages, ...r.hits] }))
+      .then((r) => {
+        if (r.total > 0) {
+          return this.setState({ images: [...prevImages, ...r.hits] });
+        }
+
+        errorHandling(`No resault on your request "${imageName}"`);
+        return;
+      })
+      .catch((error) => errorHandling(error.message))
       .finally(() => {
         changeLoading(false);
         changeImagesLength(this.state.images);
