@@ -6,34 +6,44 @@ export default class ImageGallery extends Component {
     images: [],
     loading: false,
     key: "19420354-3227e9c850ee70e183cd8e591",
-    idForModal: "",
   };
-  componentDidUpdate = (prevProps) => {
-    if (
-      prevProps.imageName !== this.props.imageName ||
-      prevProps.pageNumber !== this.props.pageNumber
-    ) {
-      this.getImages();
+  componentDidUpdate = (prevProps, prevState) => {
+    const { imageName, pageNumber, resetPageNumber } = this.props;
+    // Если запрос изменился, то обнуляем массив картинок и номер страницы,
+    // и рендерим картинки
+    if (prevProps.imageName !== imageName) {
+      this.setState({ images: [] }, () => {
+        this.getImages(this.state.images);
+      });
+      resetPageNumber();
+      return;
+    }
+    // Если номер стр изменился и стэйт остался без изменений,
+    // рендерим картинки
+    if (prevProps.pageNumber !== pageNumber && prevState === this.state) {
+      this.getImages(this.state.images);
     }
   };
 
   // Рендерим картинки в Галерею
-  getImages = () => {
-    const prevImages = this.state.images;
-    console.log(this.state.images);
-    this.setState(() => {
-      return { loading: true, images: [] };
-    });
-    console.log(this.state.images);
+  getImages = (prevImages) => {
+    const { key } = this.state;
+    const {
+      changeLoading,
+      imageName,
+      pageNumber,
+      changeImagesLength,
+    } = this.props;
 
+    changeLoading(true);
     fetch(
-      `https://pixabay.com/api/?key=${this.state.key}&q=${this.props.imageName}&image_type=photo&per_page=3&page=${this.props.pageNumber}`
+      `https://pixabay.com/api/?key=${key}&q=${imageName}&image_type=photo&per_page=3&page=${pageNumber}`
     )
       .then((r) => r.json())
       .then((r) => this.setState({ images: [...prevImages, ...r.hits] }))
       .finally(() => {
-        this.setState({ loading: false });
-        this.props.changeImagesLength(this.state.images);
+        changeLoading(false);
+        changeImagesLength(this.state.images);
         window.scrollTo({
           top: document.documentElement.scrollHeight,
           behavior: "smooth",
@@ -41,22 +51,13 @@ export default class ImageGallery extends Component {
       });
   };
 
-  // Получаем id от картинки, на которую кликаем
-  handleGetId = (e) => {
-    const targetId = e.target.id;
-    console.log(e.target.id); //736877
-    this.setState({ idForModal: targetId });
-  };
-
   render() {
-    const { images, idForModal } = this.state;
+    const { images } = this.state;
     return (
       <>
         <ul
           className="ImageGallery"
-          onClick={(e) =>
-            this.props.onOpenImage(this.handleGetId, e, images, idForModal)
-          }
+          onClick={(e) => this.props.onOpenImage(e, images)}
         >
           {images.map((i) => (
             <ImageGalleryItem src={i.webformatURL} name={i.type} id={i.id} />

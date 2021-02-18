@@ -1,18 +1,19 @@
-import React from "react";
-import PropTypes from "prop-types";
+import React, { Component } from "react";
 
-function Modal({ src }) {
-  return (
-    <>
-      <div className="Overlay">
-        <div className="Modal">
-          <img src={src} alt="Model" />
+export default class Modal extends Component {
+  componentDidMount() {
+    document.addEventListener("keydown", this.props.onCloseByKey);
+  }
+  render() {
+    const { src, onCloseModelOverlay } = this.props;
+    return (
+      <>
+        <div className="Overlay" onClick={onCloseModelOverlay}>
+          <div className="Modal">
+            <img src={src} alt="Model" />
+          </div>
         </div>
-      </div>
-    </>
-  );
+      </>
+    );
+  }
 }
-
-Modal.propTypes = {};
-
-export default Modal;

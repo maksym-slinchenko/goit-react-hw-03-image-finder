@@ -14,21 +14,19 @@ export default class App extends Component {
     pageNumber: 1,
     imagesLength: 0,
     largeImageURL: "",
+    idForModal: 0,
   };
   handleSerchSubmit = (imageName) => {
     this.setState({ imageName });
   };
-  // Получение большой картинки для модалки
-  // getLargeImage = (image) => {
-  //   this.setState({ largeImageURL: image.largeImageURL });
-  // };
 
   // Открытие модалки с большой картинкой
-  handleOpenImage = (foo, e, images, idForModal) => {
-    foo(e);
-    console.log(idForModal); // ''
-    const image = images.find((i) => i.id === idForModal);
-    console.log(image); //undefined
+  handleOpenImage = (e, images) => {
+    if (!e.target.src) {
+      return;
+    }
+    const targetId = e.target.id;
+    const image = images.find((i) => i.id === Number(targetId));
     this.setState({ largeImageURL: image.largeImageURL });
     this.setState({ isModalOpen: true });
   };
@@ -41,26 +39,47 @@ export default class App extends Component {
   };
 
   // Изменение номера страницы
-  changePageNumber = ({ pageNumber }) => {
-    const prevPageNumber = pageNumber;
-    this.setState({ pageNumber: prevPageNumber + 1 });
+  resetPageNumber = () => {
+    this.setState({ pageNumber: 1 });
+  };
+
+  // Изменение состояние loading
+  changeLoading = (bool) => {
+    this.setState({ loading: bool });
   };
 
   // Изменений длины массива с картинками
   changeImagesLength = (images) => {
     this.setState({ imagesLength: images.length });
   };
+  // Закрытие модалки по клику на оверлей
+  handleCloseByOverlay = (e) => {
+    if (!e.target.classList.contains("Overlay")) {
+      return;
+    }
+    this.setState({ isModalOpen: false });
+  };
+
+  // Закрытие модалки по Esc
+  handleCloseByKey = (event) => {
+    if (event.code !== "Escape") {
+      return;
+    }
+    this.setState({ isModalOpen: false });
+  };
 
   render() {
     const { loading, imageName, pageNumber, imagesLength } = this.state;
     return (
-      <>
+      <div onKeyDown={this.handleCloseByKey}>
         <Searchbar onSubmit={this.handleSerchSubmit} />
         <ImageGallery
           imageName={imageName}
           onOpenImage={this.handleOpenImage}
           pageNumber={pageNumber}
           changeImagesLength={this.changeImagesLength}
+          resetPageNumber={this.resetPageNumber}
+          changeLoading={this.changeLoading}
         />
         {loading && (
           <div className="LoaderContainer">
@@ -76,8 +95,14 @@ export default class App extends Component {
           </div>
         )}
         {imagesLength > 0 && <Button onLoadMore={this.handleLoadMore} />}
-        {this.state.isModalOpen && <Modal src={this.largeImageURL} />}
-      </>
+        {this.state.isModalOpen && (
+          <Modal
+            src={this.state.largeImageURL}
+            onCloseModelOverlay={this.handleCloseByOverlay}
+            onCloseByKey={this.handleCloseByKey}
+          />
+        )}
+      </div>
     );
   }
 }
