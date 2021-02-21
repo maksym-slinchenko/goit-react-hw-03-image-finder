@@ -1,11 +1,11 @@
 import React, { Component } from "react";
 import ImageGalleryItem from "./ImageGalleryItem";
+import imageAPI from "../service/ImageApi";
 
 export default class ImageGallery extends Component {
   state = {
     images: [],
     loading: false,
-    key: "19420354-3227e9c850ee70e183cd8e591",
   };
   componentDidUpdate = (prevProps, prevState) => {
     const { imageName, pageNumber, resetPageNumber } = this.props;
@@ -36,10 +36,8 @@ export default class ImageGallery extends Component {
       errorHandling,
     } = this.props;
     changeLoading(true);
-    fetch(
-      `https://pixabay.com/api/?key=${key}&q=${imageName}&image_type=photo&per_page=12&page=${pageNumber}`
-    )
-      .then((r) => r.json())
+    imageAPI
+      .fetchImage(imageName, pageNumber)
       .then((r) => {
         if (r.total > 0) {
           return this.setState({ images: [...prevImages, ...r.hits] });
